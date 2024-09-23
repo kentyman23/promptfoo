@@ -23,7 +23,7 @@ class LoggingIO(io.StringIO):
 
 
 def setup_logging(log_level):
-    logger = logging.getLogger("PythonScript")
+    logger = logging.getLogger("promptfoo")
     logger.setLevel(log_level)
     handler = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter("%(levelname)s:%(message)s")

@@ -95,9 +95,9 @@ const handlePythonLog = (message: string) => {
   }
 };
 
-const safeDelete = async (file: string) => {
+const safeDelete = (file: string) => {
   try {
-    await fs.promises.unlink(file);
+    fs.unlinkSync(file);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
       logger.error(`Error removing ${file}: ${error}`);
@@ -145,7 +145,7 @@ export async function runPython(
   };
 
   try {
-    await fs.promises.writeFile(tempJsonPath, safeJsonStringify(args), 'utf-8');
+    fs.writeFileSync(tempJsonPath, safeJsonStringify(args), 'utf-8');
     logger.debug(`Running Python wrapper with args: ${safeJsonStringify(args)}`);
 
     return new Promise((resolve, reject) => {
@@ -161,7 +161,7 @@ export async function runPython(
           // Wait for a short time to ensure the file is written
           await new Promise((resolve) => setTimeout(resolve, 100));
 
-          const data = await fs.promises.readFile(outputPath, 'utf-8');
+          const data = fs.readFileSync(outputPath, 'utf-8');
           const result = JSON.parse(data);
           if (result?.type === 'final_result') {
             resolve(result.data);
@@ -194,6 +194,6 @@ export async function runPython(
     throw error;
   } finally {
     await new Promise((resolve) => setTimeout(resolve, 100));
-    await Promise.all([tempJsonPath, outputPath].map(safeDelete));
+    Promise.all([tempJsonPath, outputPath].map(safeDelete));
   }
 }
