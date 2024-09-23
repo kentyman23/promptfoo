@@ -12,9 +12,10 @@ jest.mock('fs', () => ({
 }));
 
 jest.mock('python-shell', () => ({
-  PythonShell: {
+  PythonShell: jest.fn().mockImplementation(() => ({
     run: jest.fn(),
-  },
+    on: jest.fn(),
+  })),
 }));
 
 jest.mock('../../src/logger', () => ({
@@ -152,7 +153,11 @@ describe('pythonUtils', () => {
       jest.mocked(fs.writeFileSync).mockImplementation();
       jest.mocked(fs.readFileSync).mockReturnValue(mockOutput);
       jest.mocked(fs.unlinkSync).mockImplementation();
-      jest.mocked(PythonShell.run).mockResolvedValue([]);
+      jest.mocked(PythonShell).mockImplementation(() => ({
+        run: jest.fn().mockResolvedValue([]),
+        on: jest.fn(),
+        end: jest.fn(),
+      }));
 
       const result = await pythonUtils.runPython('testScript.py', 'testMethod', [
         'arg1',
@@ -184,7 +189,9 @@ describe('pythonUtils', () => {
     });
 
     it('should throw an error if the Python script execution fails', async () => {
-      jest.mocked(PythonShell.run).mockRejectedValue(new Error('Test Error'));
+      jest.mocked(PythonShell).mockImplementation(() => ({
+        run: jest.fn().mockRejectedValue(new Error('Test Error')),
+      }));
 
       await expect(pythonUtils.runPython('testScript.py', 'testMethod', ['arg1'])).rejects.toThrow(
         'Error running Python script: Test Error',

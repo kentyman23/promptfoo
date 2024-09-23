@@ -151,16 +151,12 @@ export async function runPython(
     return new Promise((resolve, reject) => {
       const pyshell = new PythonShell('wrapper.py', pythonOptions);
       pyshell.on('message', handlePythonLog);
-      pyshell.end(async (err) => {
+      pyshell.end((err) => {
         if (err) {
           reject(err);
           return;
         }
-
         try {
-          // Wait for a short time to ensure the file is written
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
           const data = fs.readFileSync(outputPath, 'utf-8');
           const result = JSON.parse(data);
           if (result?.type === 'final_result') {
