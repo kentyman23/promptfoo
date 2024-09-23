@@ -138,7 +138,7 @@ export async function runPython(
   await validatePythonPath(pythonPath, typeof customPath === 'string');
 
   const pythonOptions: PythonShellOptions = {
-    mode: 'text',
+    mode: 'binary',
     pythonPath,
     scriptPath: __dirname,
     args: [absPath, method, logLevel, tempJsonPath, outputPath],
