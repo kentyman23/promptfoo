@@ -26,7 +26,12 @@ import type {
   TestSuite,
   UnifiedConfig,
 } from './types';
-import { isJavascriptFile, maybeLoadFromExternalFile, readFilters } from './util';
+import {
+  endsWithPromptfooConfigExtension,
+  isJavascriptFile,
+  maybeLoadFromExternalFile,
+  readFilters,
+} from './util';
 
 export async function dereferenceConfig(rawConfig: UnifiedConfig): Promise<UnifiedConfig> {
   if (getEnvBool('PROMPTFOO_DISABLE_REF_PARSER')) {
@@ -218,6 +223,9 @@ export async function readConfigs(configPaths: string[]): Promise<UnifiedConfig>
       throw new Error(`No configuration file found at ${configPath}`);
     }
     for (const globPath of globPaths) {
+      if (!endsWithPromptfooConfigExtension(globPath)) {
+        continue;
+      }
       const config = await readConfig(globPath);
       configs.push(config);
     }

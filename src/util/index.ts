@@ -65,6 +65,18 @@ export function isJavascriptFile(filePath: string): boolean {
   return /\.(js|cjs|mjs|ts|cts|mts)$/.test(filePath);
 }
 
+/**
+ * Checks if a file ends with a supported promptfooconfig extension.
+ *
+ * @param filePath - The path of the file to check.
+ * @returns True if the file has a supported promptfooconfig extension, false otherwise.
+ */
+export function endsWithPromptfooConfigExtension(filePath: string): boolean {
+  const supportedExtensions = ['yaml', 'yml', 'json'];
+  const extension = path.extname(filePath).slice(1).toLowerCase();
+  return supportedExtensions.includes(extension) || isJavascriptFile(filePath);
+}
+
 const outputToSimpleString = (output: EvaluateTableOutput) => {
   const passFailText = output.pass ? '[PASS]' : '[FAIL]';
   const namedScoresText = Object.entries(output.namedScores)

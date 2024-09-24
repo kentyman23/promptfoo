@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import chokidar from 'chokidar';
 import type { Command } from 'commander';
 import dedent from 'dedent';
+import * as fs from 'fs';
 import * as path from 'path';
 import invariant from 'tiny-invariant';
 import { disableCache } from '../cache';
@@ -324,7 +325,7 @@ export function evalCommand(
     )
     .option(
       '-c, --config <paths...>',
-      'Path to configuration file. Automatically loads promptfooconfig.js/json/yaml',
+      'Path to configuration file or directory. Automatically loads promptfooconfig.js/json/yaml',
     )
     .option(
       // TODO(ian): Remove `vars` for v1
@@ -451,6 +452,17 @@ export function evalCommand(
           `Unsupported output file format: ${maybeFilePath}. Please use one of: ${OutputFileExtension.options.join(', ')}.`,
         );
       }
+
+      // Check if config is a directory and convert to glob
+      if (opts.config) {
+        opts.config = opts.config.map((configPath: string) => {
+          if (fs.existsSync(configPath) && fs.statSync(configPath).isDirectory()) {
+            return path.join(configPath, '*');
+          }
+          return configPath;
+        });
+      }
+
       doEval(opts, defaultConfig, defaultConfigPath, evaluateOptions);
     });
 }
