@@ -15,6 +15,7 @@ import {
 } from './providers/azureopenai';
 import { BAMChatProvider, BAMEmbeddingProvider } from './providers/bam';
 import { AwsBedrockCompletionProvider, AwsBedrockEmbeddingProvider } from './providers/bedrock';
+import { BrowserProvider } from './providers/browser';
 import * as CloudflareAiProviders from './providers/cloudflare-ai';
 import { CohereChatCompletionProvider, CohereEmbeddingProvider } from './providers/cohere';
 import { GolangProvider } from './providers/golangCompletion';
@@ -72,6 +73,7 @@ import type {
   ProviderOptions,
   ProviderOptionsMap,
 } from './types/providers';
+import { getNunjucksEngine } from './util/templates';
 
 // FIXME(ian): Make loadApiProvider handle all the different provider types (string, ProviderOptions, ApiProvider, etc), rather than the callers.
 export async function loadApiProvider(
@@ -92,6 +94,7 @@ export async function loadApiProvider(
     env,
   };
   let ret: ApiProvider;
+  providerPath = getNunjucksEngine().renderString(providerPath, {});
   if (
     providerPath.startsWith('file://') &&
     (providerPath.endsWith('.yaml') ||
@@ -375,10 +378,23 @@ export async function loadApiProvider(
     } else {
       ret = new LocalAiChatProvider(modelType, providerOptions);
     }
-  } else if (providerPath.startsWith('http:') || providerPath.startsWith('https:')) {
+  } else if (
+    providerPath.startsWith('http:') ||
+    providerPath.startsWith('https:') ||
+    providerPath === 'http' ||
+    providerPath === 'https'
+  ) {
     ret = new HttpProvider(providerPath, providerOptions);
-  } else if (providerPath.startsWith('ws:') || providerPath.startsWith('wss:')) {
+  } else if (
+    providerPath.startsWith('ws:') ||
+    providerPath.startsWith('wss:') ||
+    providerPath === 'websocket' ||
+    providerPath === 'ws' ||
+    providerPath === 'wss'
+  ) {
     ret = new WebSocketProvider(providerPath, providerOptions);
+  } else if (providerPath === 'browser') {
+    ret = new BrowserProvider(providerPath, providerOptions);
   } else if (providerPath === 'promptfoo:redteam:iterative') {
     ret = new RedteamIterativeProvider(providerOptions.config);
   } else if (providerPath === 'promptfoo:redteam:iterative:tree') {

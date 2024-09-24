@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { checkNodeVersion } from './checkNodeVersion';
+import { authCommand } from './commands/auth';
 import { cacheCommand } from './commands/cache';
 import { configCommand } from './commands/config';
 import { deleteCommand } from './commands/delete';
@@ -40,6 +41,7 @@ async function main() {
   showCommand(program);
   versionCommand(program);
   viewCommand(program);
+  authCommand(program);
 
   const generateCommand = program.command('generate').description('Generate synthetic data');
   generateDatasetCommand(generateCommand);
